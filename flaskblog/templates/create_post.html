@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+<!--code block in html-->
+{% block content%}
+<div class=content-section">
+    <form method="POST" action=""> <!-- empty means that after posting form we come back to the same route-->
+        {{ form.hidden_tag() }} <!-- safe token for our app, part of protection-->
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">{{ legend }}</legend> <!--margin bottom value of 4-->
+
+            <div class="form-group">
+                {{ form.title.label(class="form-control-label") }} <!-- label 'Username'-->
+                {% if form.title.errors %}
+                {{ form.title(class="form-control form-control-lg is-invalid" )}}<!--lg for large-->
+                <div class="invalid-feedback">
+                    {% for error in form.title.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.title(class="form-control form-control-lg")}}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.content.label(class="form-control-label") }} <!-- label 'Username'-->
+                {% if form.content.errors %}
+                {{ form.content(class="form-control form-control-lg is-invalid" )}}<!--lg for large-->
+                <div class="invalid-feedback">
+                    {% for error in form.content.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.content(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+</div>
+{% endblock content%}

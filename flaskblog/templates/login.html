@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+<!--code block in html-->
+{% block content%}
+        <div class=content-section">
+            <form method="POST" action=""> <!-- empty means that after posting form we come back to the same route-->
+                {{ form.hidden_tag() }} <!-- safe token for our app, part of protection-->
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">Log In</legend> <!--margin bottom value of 4-->
+
+                        <div class="form-group">
+                            {{ form.email.label(class="form-control-label") }} <!-- label 'Username'-->
+                            {% if form.email.errors %}
+                                {{ form.email(class="form-control form-control-lg is-invalid" )}}<!--lg for large-->
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.email(class="form-control form-control-lg")}}
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.password.label(class="form-control-label") }} <!-- label 'Username'-->
+                            {% if form.password.errors %}
+                                {{ form.password(class="form-control form-control-lg is-invalid" )}}<!--lg for large-->
+                                <div class="invalid-feedback">
+                                    {% for error in form.password.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.password(class="form-control form-control-lg") }}
+                            {% endif %}
+                        </div>
+                        <div class="form-check">
+                            {{ form.remember(class="form-check-input") }}
+                            {{ form.remember.label(class="form-check-label") }}
+                        </div>
+                </fieldset>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-outline-info") }}
+                </div>
+                <small class="text-muted ml-2">
+                    <a href="#">Forgot Password?</a>
+                </small>
+            </form>
+        </div>
+<div class="border-top pt-3">
+    <small class="text-muted">
+                <!--login is the name of function not a route-->
+        Need an account? <a class="ml-2" href="{{ url_for('register') }}">Sign Up</a>
+    </small>
+</div>
+{% endblock content %}
