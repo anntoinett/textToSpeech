@@ -21,6 +21,10 @@
                 {% endif %}
             </div>
             <div class="form-group">
+                <label for="mytext">Select a text:</label>
+                <input type="file" id="mytext" name="mytext" accept=".pdf, .docs, .txt">
+            </div>
+            <div class="form-group">
                 {{ form.content.label(class="form-control-label") }} <!-- label 'Username'-->
                 {% if form.content.errors %}
                 {{ form.content(class="form-control form-control-lg is-invalid" )}}<!--lg for large-->

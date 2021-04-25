@@ -100,10 +100,10 @@ def new_post():
         post = Post(title=form.title.data, content=form.content.data, author=current_user) #author works because of relationship in user model?
         db.session.add(post)
         db.session.commit()
-        flash('Post created succesfully!', 'success')
+        flash('Text added succesfully!', 'success')
         return redirect(url_for('home'))
-    return render_template('create_post.html', title='New post',
-                           form=form, legend='New Post')
+    return render_template('create_post.html', title='New text',
+                           form=form, legend='New Text')
 
 @app.route("/post/<int:post_id>")
 def post(post_id):
