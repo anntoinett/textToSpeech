@@ -140,6 +140,41 @@ def delete_post(post_id):
     flash('Your post has been deleted!', 'success')
     return redirect(url_for('home'))
 
+@app.route("/post/<int:post_id>")
+@login_required
+def read_text(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)  # http forbidden route
+
+@app.route("/post/<int:post_id>")
+@login_required
+def stop_reading(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)  # http forbidden route
+
+@app.route("/post/<int:post_id>")
+@login_required
+def read_next(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)  # http forbidden route
+
+@app.route("/post/<int:post_id>")
+@login_required
+def read_previous(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)  # http forbidden route
+
+@app.route("/post/<int:post_id>")
+@login_required
+def reset_reading(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)  # http forbidden route
+
 @app.route("/user/<string:username>")
 # passing argument to html
 def user_posts(username):

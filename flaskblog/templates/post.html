@@ -20,11 +20,11 @@
         <h2 class="article-title" > {{ post.title }} </h2>
         <p class="article-content">{{ post.content }}</p>
         <div class="text-actions">
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" >Read</a>
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" >Stop</a>
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" >Next</a>
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" >Previous</a>
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" >Reset</a>
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_text', post_id=post.id) }}">Read</a>
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('stop_reading', post_id=post.id) }}">Stop</a>
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_next', post_id=post.id) }}">Next</a>
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_previous', post_id=post.id) }}">Previous</a>
+            <a class="btn btn-danger btn-sm m-1" href="{{ url_for('reset_reading', post_id=post.id) }}">Reset</a>
         </div>
     </div>
 </article>
