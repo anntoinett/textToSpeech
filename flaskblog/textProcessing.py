@@ -25,8 +25,8 @@ class TextProcessing:
             txt_text.close()
 
     def split_sentences(self, n):
-        file_to_read = open(self.txt_filename, "r")
-        file_to_read = file_to_read.read()
+        file = open(self.txt_filename, "r")
+        file_to_read = file.read()
         detector = nltk.data.load('tokenizers/punkt/english.pickle')
         detector._params.abbrev_types.add('e.g')
         tokens = detector.tokenize(file_to_read)
@@ -41,7 +41,7 @@ class TextProcessing:
                 ind = 0
                 sentences.append(current_sentences)
                 current_sentences = ""
-        file_to_read.close()
+        file.close()
 
         return sentences
 
