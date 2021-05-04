@@ -58,4 +58,5 @@ for t in tokens:
         print(current + "\n")
         current = ""
 
+
 txt_file.close()
