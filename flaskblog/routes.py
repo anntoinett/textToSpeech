@@ -1,11 +1,27 @@
+import multiprocessing
 import os
 import secrets
+from io import BytesIO
+
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
+from gtts import gTTS
+
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm  # forms created by us
 from flaskblog.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
+
+from pydub import AudioSegment
+from pydub.playback import play
+import threading
+
+reading_threads = []
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
+    return response
 
 # route decorator- what we type into our browser
 # here home/root page
@@ -13,6 +29,11 @@ from flask_login import login_user, current_user, logout_user, login_required
 @app.route("/home")
 # passing argument to html
 def home():
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
     page = request.args.get('page', default=1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
     return render_template('home.html', posts=posts)
@@ -20,6 +41,11 @@ def home():
 
 @app.route("/about")
 def about():
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
     return render_template('about.html', title='About')
 
 
@@ -57,6 +83,11 @@ def login():
 
 @app.route("/logout")
 def logout():
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
     logout_user()
     return redirect(url_for('home'))
 
@@ -76,6 +107,11 @@ def save_picture(form_picture):
 @app.route("/account", methods=['GET', 'POST'])
 @login_required
 def account():
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
     form = UpdateAccountForm()
     if form.validate_on_submit():
         if form.picture.data:
@@ -95,6 +131,11 @@ def account():
 @app.route("/post/new", methods=['GET', 'POST'])
 @login_required
 def new_post():
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
     form = PostForm()
     if form.validate_on_submit():
         post = Post(title=form.title.data, content=form.content.data, author=current_user) #author works because of relationship in user model?
@@ -107,12 +148,44 @@ def new_post():
 
 @app.route("/post/<int:post_id>")
 def post(post_id):
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
     post = Post.query.get_or_404(post_id)
     return render_template('post.html', title=post.title, post=post)
+
+
+
+@app.route("/post/<int:post_id>reading")
+@login_required
+def start_reading(post_id):
+
+    thr = multiprocessing.Process(target=read, args=(post_id,), kwargs={})
+    reading_threads.append(thr)
+    if not any(t.is_alive() for t in reading_threads):
+        thr.start()
+    return '', 204
+
+
+def read(post_id):
+    post = Post.query.get_or_404(post_id)
+    mp3_fp = BytesIO()
+    tts = gTTS(post.content, lang='en', tld="com")
+    tts.write_to_fp(mp3_fp)
+    mp3_fp.seek(0)
+    post_audio = AudioSegment.from_file(mp3_fp, format="mp3")
+    play(post_audio)
 
 @app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
 @login_required
 def update_post(post_id):
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403) #http forbidden route
@@ -132,6 +205,11 @@ def update_post(post_id):
 @app.route("/post/<int:post_id>/delete", methods=['POST'])
 @login_required
 def delete_post(post_id):
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403) #http forbidden route
@@ -140,12 +218,8 @@ def delete_post(post_id):
     flash('Your post has been deleted!', 'success')
     return redirect(url_for('home'))
 
-@app.route("/post/<int:post_id>")
-@login_required
-def read_text(post_id):
-    post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
-        abort(403)  # http forbidden route
+
+
 
 @app.route("/post/<int:post_id>")
 @login_required
@@ -178,6 +252,11 @@ def reset_reading(post_id):
 @app.route("/user/<string:username>")
 # passing argument to html
 def user_posts(username):
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
     page = request.args.get('page', default=1, type=int)
     user=User.query.filter_by(username=username).first_or_404()
     # means without break

@@ -20,7 +20,8 @@
         <h2 class="article-title" > {{ post.title }} </h2>
         <p class="article-content">{{ post.content }}</p>
         <div class="text-actions">
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_text', post_id=post.id) }}">Read</a>
+
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('start_reading', post_id=post.id) }}">Read</a>
             <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('stop_reading', post_id=post.id) }}">Stop</a>
             <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_next', post_id=post.id) }}">Next</a>
             <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_previous', post_id=post.id) }}">Previous</a>
