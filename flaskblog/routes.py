@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm  # forms created by us
 from flaskblog.models import User, Post
-from flask_login import login_user, current_user, logout_user, login_required
+from flask_login import login_user, current_user, logout_user, login_required, AnonymousUserMixin
 
 from pydub import AudioSegment
 from pydub.playback import play
@@ -36,7 +36,10 @@ def home():
                 if t.is_alive():
                     t.terminate()
     page = request.args.get('page', default=1, type=int)
-    posts = Post.query.filter_by(user_id=current_user.id).order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    if current_user.is_authenticated:
+        posts = Post.query.filter_by(user_id=current_user.id).order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    else:
+        posts = []
     return render_template('home.html', posts=posts)
 
 

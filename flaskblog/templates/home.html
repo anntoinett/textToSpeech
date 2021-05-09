@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 <!--code block in html-->
 {% block content%}
+{% if posts != [] %}
 {% for post in posts.items %} <!-- because its pagination object -->
 <article class="media content-section">
     <a href="{{ url_for('user_posts', username=post.author.username) }}">
@@ -28,4 +29,7 @@
         ...
     {% endif %}
 {% endfor %}
+{% else %}
+<h2>Check if you're logged in!</h2>
+{% endif %}
 {% endblock content %}
