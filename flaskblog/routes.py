@@ -129,6 +129,17 @@ def account():
     image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
     return render_template('account.html', title='Account', image_file=image_file, form=form)  # post request
 
+def read_text(uploaded_file):
+    # if (uploaded_file.filename == "txt"):
+    with open(uploaded_file.filename) as f:
+        content = f.read()
+    # elif (uploaded_file.filename == "pdf"):
+        # content =
+    # elif (uploaded_file.filename == "docx"):
+        # content =
+
+    return content
+
 @app.route("/post/new", methods=['GET', 'POST'])
 @login_required
 def new_post():
@@ -141,9 +152,8 @@ def new_post():
     if form.validate_on_submit():
         uploaded_file = form.file.data
         if uploaded_file.filename != '':
-            uploaded_file.save(os.path.join( uploaded_file.filename))
-        with open(uploaded_file.filename) as f:
-            content = f.read()
+            uploaded_file.save(os.path.join(uploaded_file.filename))
+        content = read_text(uploaded_file)
         post = Post(title=form.title.data, content=content, author=current_user) #author works because of relationship in user model?
         db.session.add(post)
         db.session.commit()
