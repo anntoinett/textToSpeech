@@ -1,0 +1,8 @@
+prefix=/home/tosia/my_flask_app/venv
+
+Name: Pycairo
+Description: Python 3 bindings for cairo
+Version: 1.20.0
+Requires: cairo
+Cflags: -I${prefix}/include/pycairo
+Libs:
