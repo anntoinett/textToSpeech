@@ -57,4 +57,5 @@ class UpdateAccountForm(FlaskForm):
 class PostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
+    file = FileField('Upload text', validators=[FileAllowed(['pdf', 'txt', 'doc'])])
     submit = SubmitField('Add')

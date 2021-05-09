@@ -10,7 +10,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .bg-steel {
-  background-color: #5f788a;
+  background-color:  #bfd949;
 }
 
 .site-header .navbar-nav .nav-link {
@@ -31,14 +31,15 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid #dddddd;
   border-radius: 3px;
   margin-bottom: 20px;
+  color: #919191;
 }
 
 .article-title {
-  color: #444444;
+  color: #ffadbb;
 }
 
 a.article-title:hover {
-  color: #428bca;
+  color: #919191;
   text-decoration: none;
 }
 
@@ -78,4 +79,38 @@ a.article-title:hover {
 
 .account-heading {
   font-size: 2.5rem;
+}
+
+a{
+  color: #f0768b;
+}
+
+.btn-outline-info{
+  border-color: #bfd949;
+  color: #bfd949;
+}
+
+.btn-outline-info:hover{
+  background-color: #9cbd00;
+  border-color: #9cbd00;
+}
+
+.btn-info{
+  background-color: #bfd949;
+  border-color: #bfd949;
+}
+
+.btn-info:hover{
+  background-color: #9cbd00;
+  border-color: #9cbd00;
+}
+
+.btn-secondary{
+    background-color: #a5c028;
+    border-color: #a5c028;
+}
+
+.btn-secondary:hover{
+    background-color: #768536;
+    border-color: #768536;
 }

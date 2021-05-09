@@ -6,6 +6,7 @@ from io import BytesIO
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from gtts import gTTS
+from werkzeug.utils import secure_filename
 
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm  # forms created by us
@@ -138,7 +139,11 @@ def new_post():
                     t.terminate()
     form = PostForm()
     if form.validate_on_submit():
+        uploaded_file = form.file.data
+        if uploaded_file.filename != '':
+            uploaded_file.save(uploaded_file.filename)
         post = Post(title=form.title.data, content=form.content.data, author=current_user) #author works because of relationship in user model?
+        # TODO Przypisać treść pliku do content, ale najpierw trzeba tę treść odczytać
         db.session.add(post)
         db.session.commit()
         flash('Text added succesfully!', 'success')
@@ -191,6 +196,9 @@ def update_post(post_id):
         abort(403) #http forbidden route
     form = PostForm()
     if form.validate_on_submit():
+        uploaded_file = form.file.data
+        if uploaded_file.filename != '':
+            uploaded_file.save(uploaded_file.filename)
         post.title = form.title.data
         post.content = form.content.data
         db.session.commit()
