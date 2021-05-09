@@ -141,9 +141,10 @@ def new_post():
     if form.validate_on_submit():
         uploaded_file = form.file.data
         if uploaded_file.filename != '':
-            uploaded_file.save(uploaded_file.filename)
-        post = Post(title=form.title.data, content=form.content.data, author=current_user) #author works because of relationship in user model?
-        # TODO Przypisać treść pliku do content, ale najpierw trzeba tę treść odczytać
+            uploaded_file.save(os.path.join( uploaded_file.filename))
+        with open(uploaded_file.filename) as f:
+            content = f.read()
+        post = Post(title=form.title.data, content=content, author=current_user) #author works because of relationship in user model?
         db.session.add(post)
         db.session.commit()
         flash('Text added succesfully!', 'success')
@@ -196,9 +197,7 @@ def update_post(post_id):
         abort(403) #http forbidden route
     form = PostForm()
     if form.validate_on_submit():
-        uploaded_file = form.file.data
-        if uploaded_file.filename != '':
-            uploaded_file.save(uploaded_file.filename)
+        post.file = form.file.data
         post.title = form.title.data
         post.content = form.content.data
         db.session.commit()
