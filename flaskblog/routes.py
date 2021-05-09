@@ -210,9 +210,13 @@ def update_post(post_id):
         abort(403) #http forbidden route
     form = PostForm()
     if form.validate_on_submit():
+        uploaded_file = form.file.data
+        if uploaded_file.filename != '':
+            uploaded_file.save(os.path.join(uploaded_file.filename))
+
         post.file = form.file.data
         post.title = form.title.data
-        post.content = form.content.data
+        post.content = read_text(uploaded_file)
         db.session.commit()
         flash('Your post has been updated!', 'success')
         return redirect(url_for('post', post_id=post.id))
