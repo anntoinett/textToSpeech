@@ -29,19 +29,19 @@
                     {% endfor %}
                 {% endif %}
             </div>
-            <div class="form-group">
-                {{ form.content.label(class="form-control-label") }} <!-- label 'Username'-->
-                {% if form.content.errors %}
-                {{ form.content(class="form-control form-control-lg is-invalid" )}}<!--lg for large-->
-                <div class="invalid-feedback">
-                    {% for error in form.content.errors %}
-                    <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% else %}
-                {{ form.content(class="form-control form-control-lg") }}
-                {% endif %}
-            </div>
+<!--            <div class="form-group">-->
+<!--                {{ form.content.label(class="form-control-label") }} &lt;!&ndash; label 'Username'&ndash;&gt;-->
+<!--                {% if form.content.errors %}-->
+<!--                {{ form.content(class="form-control form-control-lg is-invalid" )}}&lt;!&ndash;lg for large&ndash;&gt;-->
+<!--                <div class="invalid-feedback">-->
+<!--                    {% for error in form.content.errors %}-->
+<!--                    <span>{{ error }}</span>-->
+<!--                    {% endfor %}-->
+<!--                </div>-->
+<!--                {% else %}-->
+<!--                {{ form.content(class="form-control form-control-lg") }}-->
+<!--                {% endif %}-->
+<!--            </div>-->
         </fieldset>
         <div class="form-group">
             {{ form.submit(class="btn btn-outline-info") }}
