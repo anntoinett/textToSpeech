@@ -4,6 +4,7 @@ import os
 from nltk.tokenize.punkt import PunktParameters, PunktSentenceTokenizer
 from nltk.corpus import gutenberg
 from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktTrainer
+from typing import List
 
 
 class TextProcessing:
@@ -11,6 +12,9 @@ class TextProcessing:
 
     def __init__(self, filename):
         self.filename = filename
+
+    def convert_to_txt(self):
+        pass
 
     def pdf_to_txt(self):
         with pdfplumber.open(self.filename) as pdf_text:
@@ -24,7 +28,7 @@ class TextProcessing:
                 txt_text.writelines(page.extract_text())
             txt_text.close()
 
-    def split_sentences(self, n):
+    def split_sentences(self, n) -> List[str]:
         file = open(self.txt_filename, "r")
         file_to_read = file.read()
         detector = nltk.data.load('tokenizers/punkt/english.pickle')

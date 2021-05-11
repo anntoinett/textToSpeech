@@ -26,6 +26,8 @@ class Post(db.Model):
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow) #we pass function not current date
     content = db.Column(db.Text,nullable=False)
+    last_part = db.Column(db.Integer, nullable=False, default=0)
+    number_of_parts = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)#user is lowercase because here its the tablename which should be low
 
     def __repr__(self):
