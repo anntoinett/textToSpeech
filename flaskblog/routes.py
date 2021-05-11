@@ -36,7 +36,10 @@ def home():
                 if t.is_alive():
                     t.terminate()
     page = request.args.get('page', default=1, type=int)
-    if current_user.is_authenticated:
+    # user = User.query.filter_by(id=current_user.id).first()
+    # has_posts = user.posts
+    # print("****************" + has_posts)
+    if current_user.is_authenticated: # and has_posts != []:
         posts = Post.query.filter_by(user_id=current_user.id).order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
     else:
         posts = []

@@ -12,7 +12,7 @@ from flask_login import LoginManager
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bbe3578bd468a2f5bc5e47ca515b5b47'
 app.config[
-    'SQLALCHEMY_DATABASE_URI'] = "sqlite:///site.db"  # relative path from an actual file - it should be created in our project directory, same as __init__
+    'SQLALCHEMY_DATABASE_URI'] = "sqlite:///site2.db"  # relative path from an actual file - it should be created in our project directory, same as __init__
 db = SQLAlchemy(app)  # in alchemy we can represent database structures as classes - each class -> a table in db
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
