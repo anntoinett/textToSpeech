@@ -17,6 +17,8 @@ from pydub import AudioSegment
 from pydub.playback import play
 import threading
 
+from flaskblog.textProcessing import TextProcessing
+
 reading_threads = []
 
 @app.after_request
@@ -158,12 +160,14 @@ def new_post():
     if form.validate_on_submit():
         uploaded_file = form.file.data
         if uploaded_file.filename != '':
-            uploaded_file.save(os.path.join(uploaded_file.filename))
-        content = read_text(uploaded_file)
-        post = Post(title=form.title.data, content=content, author=current_user) #author works because of relationship in user model?
-        db.session.add(post)
-        db.session.commit()
-        flash('Text added succesfully!', 'success')
+            # print(uploaded_file.read())
+            # uploaded_file.save(os.path.join(uploaded_file.filename))
+            # content = read_text(uploaded_file)
+            content, num_of_parts = TextProcessing.convert_to_txt(uploaded_file)
+            post = Post(title=form.title.data, content=content, author=current_user, number_of_parts=num_of_parts) #author works because of relationship in user model?
+            db.session.add(post)
+            db.session.commit()
+            flash('Text added succesfully!', 'success')
         return redirect(url_for('home'))
     return render_template('create_post.html', title='New text',
                            form=form, legend='New Text')

@@ -1,3 +1,5 @@
+import math
+
 import pdfplumber
 import nltk
 import os
@@ -11,10 +13,19 @@ class TextProcessing:
     txt_filename = ""
 
     def __init__(self, filename):
-        self.filename = filename
+        self.file = filename
 
-    def convert_to_txt(self):
-        pass
+    @staticmethod
+    def convert_to_txt(file):
+        content = ""
+
+        extension = os.path.splitext(file.filename)
+        if extension[1] == ".txt":
+            content = file.read()
+
+        num_of_parts = TextProcessing.count_parts(content, 5)
+
+        return content, num_of_parts
 
     def pdf_to_txt(self):
         with pdfplumber.open(self.filename) as pdf_text:
@@ -23,14 +34,25 @@ class TextProcessing:
             txt_filename = os.path.join(txt_filename, ".txt")
             self.txt_filename = txt_filename
             txt_text = open(txt_filename, "w")
-            for i in range(0, len(pdf.pages)):
+            for i in range(0, len(pdf_text.pages)):
                 page = pdf_text.pages[i]
                 txt_text.writelines(page.extract_text())
             txt_text.close()
 
+    @staticmethod
+    def count_parts(file_to_read, n):
+        # print("********" + str(type(file_to_read)))
+        file_to_read = str(file_to_read)
+        detector = nltk.data.load('tokenizers/punkt/english.pickle')
+        detector._params.abbrev_types.add('e.g')
+        tokens = detector.tokenize(file_to_read)
+        num_of_parts = math.ceil(len(tokens) / n)
+        return num_of_parts
+
+
     def split_sentences(self, n) -> List[str]:
-        file = open(self.txt_filename, "r")
-        file_to_read = file.read()
+        # file = open(self.txt_filename, "r")
+        file_to_read = self.file.read()
         detector = nltk.data.load('tokenizers/punkt/english.pickle')
         detector._params.abbrev_types.add('e.g')
         tokens = detector.tokenize(file_to_read)
@@ -45,65 +67,65 @@ class TextProcessing:
                 ind = 0
                 sentences.append(current_sentences)
                 current_sentences = ""
-        file.close()
+        # file.close()
 
         return sentences
 
 
 
-with pdfplumber.open("static\\test.pdf") as pdf:
-    txt_file = open("static\\test.txt", "w")
-    for i in range(0, len(pdf.pages)):
-        page = pdf.pages[i]
-        print(page.extract_text())
-        txt_file.writelines(page.extract_text())
-    txt_file.close()
-
-txt_file = open("static\\test.txt", "r")
-read_file = txt_file.read()
-print("*************")
-
-# punkt_params = PunktParameters()
-# punkt_params.abbrev_types = {'Mr', 'Mrs', 'LLC', 'Dr'}
-# tokenizer = PunktSentenceTokenizer(punkt_params)
-# tokens = tokenizer.tokenize(read_file)
-
-# tokens = nltk.sent_tokenize(read_file)
-# print(type(tokens))
-
-sentence = "Mr. James told me Dr. Brown is not available today. I will e.g. try tomorrow S. Gray."
-
-sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
-sent_detector._params.abbrev_types.add('e.g')
-tokens_list = sent_detector.tokenize(read_file)
-
-# text = ""
-# for file_id in gutenberg.fileids():
-#     text += gutenberg.raw(file_id)
+# with pdfplumber.open("static\\test.pdf") as pdf:
+#     txt_file = open("static\\test.txt", "w")
+#     for i in range(0, len(pdf.pages)):
+#         page = pdf.pages[i]
+#         print(page.extract_text())
+#         txt_file.writelines(page.extract_text())
+#     txt_file.close()
 #
-# trainer = PunktTrainer()
-# trainer.INCLUDE_ALL_COLLOCS = True
-# trainer.train(text)
+# txt_file = open("static\\test.txt", "r")
+# read_file = txt_file.read()
+# print("*************")
 #
-# tokenizer = PunktSentenceTokenizer(trainer.get_params())
-# tokenizer._params.abbrev_types.add('dr')
-# tokenizer._params.abbrev_types.add('e.g')
-# sentences = "Mr. James told me Dr. Brown is not available today. I will e.g. try tomorrow S. Gray."
+# # punkt_params = PunktParameters()
+# # punkt_params.abbrev_types = {'Mr', 'Mrs', 'LLC', 'Dr'}
+# # tokenizer = PunktSentenceTokenizer(punkt_params)
+# # tokens = tokenizer.tokenize(read_file)
 #
-# print(tokenizer.tokenize(sentences))
-
-index = 0
-current = ""
-for t in tokens_list:
-    # print(t + "\n")
-    current = current + " " + t
-    #na razie co 6 zdań
-    if index < 5:
-        index += 1
-    else:
-        index = 0
-        print(current + "\n")
-        current = ""
-
-
-txt_file.close()
+# # tokens = nltk.sent_tokenize(read_file)
+# # print(type(tokens))
+#
+# sentence = "Mr. James told me Dr. Brown is not available today. I will e.g. try tomorrow S. Gray."
+#
+# sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
+# sent_detector._params.abbrev_types.add('e.g')
+# tokens_list = sent_detector.tokenize(read_file)
+#
+# # text = ""
+# # for file_id in gutenberg.fileids():
+# #     text += gutenberg.raw(file_id)
+# #
+# # trainer = PunktTrainer()
+# # trainer.INCLUDE_ALL_COLLOCS = True
+# # trainer.train(text)
+# #
+# # tokenizer = PunktSentenceTokenizer(trainer.get_params())
+# # tokenizer._params.abbrev_types.add('dr')
+# # tokenizer._params.abbrev_types.add('e.g')
+# # sentences = "Mr. James told me Dr. Brown is not available today. I will e.g. try tomorrow S. Gray."
+# #
+# # print(tokenizer.tokenize(sentences))
+#
+# index = 0
+# current = ""
+# for t in tokens_list:
+#     # print(t + "\n")
+#     current = current + " " + t
+#     #na razie co 6 zdań
+#     if index < 5:
+#         index += 1
+#     else:
+#         index = 0
+#         print(current + "\n")
+#         current = ""
+#
+#
+# txt_file.close()
