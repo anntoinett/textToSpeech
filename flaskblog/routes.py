@@ -218,11 +218,14 @@ def update_post(post_id):
     if form.validate_on_submit():
         uploaded_file = form.file.data
         if uploaded_file.filename != '':
-            uploaded_file.save(os.path.join(uploaded_file.filename))
-
-        post.file = form.file.data
-        post.title = form.title.data
-        post.content = read_text(uploaded_file)
+            extension = os.path.splitext(uploaded_file.filename)[1]
+            new_filename = current_user.username + extension
+            uploaded_file.save(os.path.join("flaskblog/texts/", new_filename))
+            # post.file = form.file.data
+            post.title = form.title.data
+            content, num_of_parts = TextProcessing.convert_to_txt(new_filename)
+            post.content = content
+            post.number_of_parts = num_of_parts
         db.session.commit()
         flash('Your post has been updated!', 'success')
         return redirect(url_for('post', post_id=post.id))

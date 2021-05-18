@@ -33,21 +33,18 @@ class TextProcessing:
     def pdf_to_txt(filename):
         file_content = ""
         with pdfplumber.open(os.path.join("flaskblog/texts/", filename)) as pdf_text:
-            # txt_filename = os.path.basename(filename)
-            print(filename)
-            txt_filename = os.path.splitext(filename)[0] + ".txt"
-            # txt_filename = os.path.join(txt_filename, ".txt")
-            print(txt_filename)
-            txt_text = open(os.path.join("flaskblog/texts", txt_filename), "w")
+            # # txt_filename = os.path.basename(filename)
+            # txt_filename = os.path.splitext(filename)[0] + ".txt"
+            # # txt_filename = os.path.join(txt_filename, ".txt")
+            # txt_text = open(os.path.join("flaskblog/texts", txt_filename), "w")
             for i in range(0, len(pdf_text.pages)):
                 page = pdf_text.pages[i]
-                # file_content += page.extract_text()
-                txt_text.writelines(page.extract_text())
-            txt_text.close()
-            txt_file = open(os.path.join("flaskblog/texts", txt_filename), "r")
-            file_content = txt_file.read()
-            txt_file.close()
-        print(file_content)
+                file_content += page.extract_text()
+            #     txt_text.writelines(page.extract_text())
+            # txt_text.close()
+            # txt_file = open(os.path.join("flaskblog/texts", txt_filename), "r")
+            # file_content = txt_file.read()
+            # txt_file.close()
         return file_content
 
     @staticmethod
