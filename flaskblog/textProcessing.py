@@ -19,9 +19,11 @@ class TextProcessing:
     def convert_to_txt(file):
         content = ""
 
-        extension = os.path.splitext(file.filename)
+        extension = os.path.splitext(file)
         if extension[1] == ".txt":
-            content = file.read()
+            file_content = open(os.path.join("flaskblog/texts/", file), "r")
+            content = file_content.read()
+            print(content)
 
         num_of_parts = TextProcessing.count_parts(content, 5)
 
@@ -42,7 +44,7 @@ class TextProcessing:
     @staticmethod
     def count_parts(file_to_read, n):
         # print("********" + str(type(file_to_read)))
-        file_to_read = str(file_to_read)
+        # file_to_read = str(file_to_read)
         detector = nltk.data.load('tokenizers/punkt/english.pickle')
         detector._params.abbrev_types.add('e.g')
         tokens = detector.tokenize(file_to_read)
@@ -80,10 +82,11 @@ class TextProcessing:
 #         print(page.extract_text())
 #         txt_file.writelines(page.extract_text())
 #     txt_file.close()
-#
-# txt_file = open("static\\test.txt", "r")
+
+# txt_file = open("static/aaaa.txt", "r")
 # read_file = txt_file.read()
 # print("*************")
+# print(read_file)
 #
 # # punkt_params = PunktParameters()
 # # punkt_params.abbrev_types = {'Mr', 'Mrs', 'LLC', 'Dr'}
