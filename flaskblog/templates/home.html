@@ -20,7 +20,7 @@
             <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d, %H:%M') }}</small>
         </div>
         <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
-        <p class="article-content" style=" width: 500px; height: 100px; overflow: hidden;
+        <p class="article-content" style=" width: 800px; height: 100px; overflow: hidden;
            text-overflow: ellipsis; white-space: pre-wrap;">{{ post.content }}</p>
     </div>
 </article>
