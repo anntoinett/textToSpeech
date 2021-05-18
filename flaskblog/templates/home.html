@@ -2,6 +2,12 @@
 <!--code block in html-->
 {% block content%}
 {% if posts != [] %}
+{% if num_of_posts == 0 %}
+<div style="text-align:left;">
+    <h4>You don't have any text yet! Add one:</h4>
+    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_post') }}">Add text</a>
+</div>
+{% else %}
 {% for post in posts.items %} <!-- because its pagination object -->
 <article class="media content-section">
     <a href="{{ url_for('user_posts', username=post.author.username) }}">
@@ -29,6 +35,7 @@
         ...
     {% endif %}
 {% endfor %}
+{% endif %}
 {% else %}
 <h2>Check if you're logged in!</h2>
 {% endif %}
