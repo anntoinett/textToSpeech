@@ -143,19 +143,6 @@ def account():
     image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
     return render_template('account.html', title='Account', image_file=image_file, form=form)  # post request
 
-
-def read_text(uploaded_file):
-    # if (uploaded_file.filename == "txt"):
-    with open(uploaded_file.filename) as f:
-        content = f.read()
-    # elif (uploaded_file.filename == "pdf"):
-    # content =
-    # elif (uploaded_file.filename == "docx"):
-    # content =
-
-    return content
-
-
 @app.route("/post/new", methods=['GET', 'POST'])
 @login_required
 def new_post():

@@ -18,28 +18,37 @@ class TextProcessing:
     @staticmethod
     def convert_to_txt(file):
         content = ""
-
         extension = os.path.splitext(file)
         if extension[1] == ".txt":
             file_content = open(os.path.join("flaskblog/texts/", file), "r")
             content = file_content.read()
-            print(content)
+        elif extension[1] == ".pdf":
+            content = TextProcessing.pdf_to_txt(file)
 
         num_of_parts = TextProcessing.count_parts(content, 5)
 
         return content, num_of_parts
 
-    def pdf_to_txt(self):
-        with pdfplumber.open(self.filename) as pdf_text:
-            txt_filename = os.path.basename(self.filename)
-            txt_filename = os.path.splitext(txt_filename)[0]
-            txt_filename = os.path.join(txt_filename, ".txt")
-            self.txt_filename = txt_filename
-            txt_text = open(txt_filename, "w")
+    @staticmethod
+    def pdf_to_txt(filename):
+        file_content = ""
+        with pdfplumber.open(os.path.join("flaskblog/texts/", filename)) as pdf_text:
+            # txt_filename = os.path.basename(filename)
+            print(filename)
+            txt_filename = os.path.splitext(filename)[0] + ".txt"
+            # txt_filename = os.path.join(txt_filename, ".txt")
+            print(txt_filename)
+            txt_text = open(os.path.join("flaskblog/texts", txt_filename), "w")
             for i in range(0, len(pdf_text.pages)):
                 page = pdf_text.pages[i]
+                # file_content += page.extract_text()
                 txt_text.writelines(page.extract_text())
             txt_text.close()
+            txt_file = open(os.path.join("flaskblog/texts", txt_filename), "r")
+            file_content = txt_file.read()
+            txt_file.close()
+        print(file_content)
+        return file_content
 
     @staticmethod
     def count_parts(file_to_read, n):
