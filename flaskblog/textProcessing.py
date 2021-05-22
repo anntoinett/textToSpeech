@@ -7,7 +7,7 @@ from nltk.tokenize.punkt import PunktParameters, PunktSentenceTokenizer
 from nltk.corpus import gutenberg
 from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktTrainer
 from typing import List
-
+from docx2python import docx2python
 
 class TextProcessing:
     txt_filename = ""
@@ -24,6 +24,8 @@ class TextProcessing:
             content = file_content.read()
         elif extension[1] == ".pdf":
             content = TextProcessing.pdf_to_txt(file)
+        elif extension[1] == ".docx":
+            content = TextProcessing.docx_to_txt(file)
 
         num_of_parts = TextProcessing.count_parts(content, 5)
 
@@ -46,6 +48,11 @@ class TextProcessing:
             # file_content = txt_file.read()
             # txt_file.close()
         return file_content
+
+    @staticmethod
+    def docx_to_txt(filename):
+        docx_text = docx2python(os.path.join("flaskblog/texts/", filename))
+        return docx_text.text
 
     @staticmethod
     def count_parts(file_to_read, n):
@@ -79,7 +86,8 @@ class TextProcessing:
 
         return sentences
 
-
+# result = docx2python("static\\test.docx")
+# print(type(result.text))
 
 # with pdfplumber.open("static\\test.pdf") as pdf:
 #     txt_file = open("static\\test.txt", "w")
