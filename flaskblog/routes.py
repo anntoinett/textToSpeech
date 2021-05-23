@@ -3,6 +3,7 @@ import os
 import secrets
 from io import BytesIO
 
+import nltk
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from gtts import gTTS
@@ -19,7 +20,10 @@ import threading
 
 from flaskblog.textProcessing import TextProcessing
 
+from multiprocessing import Manager
+
 reading_threads = []
+manager = Manager() #manager holding sharable list with file-like BytesIO objects created by processing process and reading process takes then data from here
 
 
 @app.after_request
@@ -195,12 +199,71 @@ def start_reading(post_id):
 
 def read(post_id):
     post = Post.query.get_or_404(post_id)
+
     mp3_fp = BytesIO()
-    tts = gTTS(post.content, lang='en', tld="com")
-    tts.write_to_fp(mp3_fp)
-    mp3_fp.seek(0)
-    post_audio = AudioSegment.from_file(mp3_fp, format="mp3")
+    mp3_fp_array = [mp3_fp]
+
+    detector = nltk.data.load('tokenizers/punkt/english.pickle')
+    detector._params.abbrev_types.add('e.g')
+    sentences = detector.tokenize(post.content)
+    fragments = []
+
+    #dividing text for smaller fragments
+    while(len(sentences)>0):
+        if(len(sentences)>4):
+            fragments.append(sentences[0] + sentences[1] + sentences[2] + sentences[3] + sentences[4])
+            for i in range(5):
+                sentences.pop(0)
+        else:
+            fragments.append(" ".join(sentences))
+            for i in range(len(sentences)):
+                sentences.pop(0)
+
+    fp_array = manager.list([[] for i in range(len(fragments)-1)])
+    #print(fp_array)
+    thr_2 = multiprocessing.Process(target=process_fragment, args=(fp_array, fragments), kwargs={})
+
+    #processing and reading first fragment to start, the rest will be processed by second process
+    tts = gTTS(fragments.pop(0), lang='en', tld="com")
+    #tts.save('audio.mp3')
+    #print("po zapisie mp3")
+    tts.write_to_fp(mp3_fp_array[0])  #this operation takes the most time
+    #print("po write to fp")
+    mp3_fp_array[0].seek(0)
+    #first fragment ready so the second process can start working
+    thr_2.start()
+    #print("lalal")
+    post_audio = AudioSegment.from_file(mp3_fp_array[0], format="mp3")
+    #print("przed play")
     play(post_audio)
+    #print("po play")
+
+    #print("ile? " + str(len(fp_array)))
+    counter = 0
+    while(counter < len(fragments)):
+        #print(fp_array)
+        post_audio = AudioSegment.from_file(fp_array[counter][0], format="mp3")
+        #print("play kolejnych fragmentow")
+        play(post_audio)
+        counter = counter + 1
+
+def process_fragment(fp_array, fragments):
+    counter = 0
+    while (counter < len(fragments)+1):
+        #print("przetwarzam" + str(counter+2) + "fragment")
+        #print("dl fragmentow w 2 watku: " + str(len(fragments)))
+        mp3_fp = BytesIO()
+        tts = gTTS(fragments.pop(0), lang='en', tld="com")
+        tts.write_to_fp(mp3_fp)
+        #print(mp3_fp)
+        mp3_fp.seek(0)
+        sub_l = manager.list(fp_array[counter])
+        sub_l.append(mp3_fp)
+        fp_array[counter] = sub_l
+        #print("Lista gotowych bytesIO: ")
+        #print(fp_array)
+        counter = counter + 1
+        #print("wychodze z przetwarzania fragmentu")
 
 
 @app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
