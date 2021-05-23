@@ -1,30 +1,20 @@
 import multiprocessing
 import os
 import secrets
-from io import BytesIO
-
-import nltk
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
-from gtts import gTTS
-from werkzeug.utils import secure_filename
 
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm  # forms created by us
 from flaskblog.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required, AnonymousUserMixin
 
-from pydub import AudioSegment
-from pydub.playback import play
-import threading
-
 from flaskblog.textProcessing import TextProcessing
-
-from multiprocessing import Manager
+from flaskblog.textReading import TextReading
 
 reading_threads = []
-manager = Manager() #manager holding sharable list with file-like BytesIO objects created by processing process and reading process takes then data from here
-
+lastFragmentVar = multiprocessing.Value('i', 0) #shared value to update database's post's last_part once after processes stop working
+last_post_id = None
 
 @app.after_request
 def after_request(response):
@@ -43,6 +33,12 @@ def home():
             if isinstance(t, multiprocessing.Process):
                 if t.is_alive():
                     t.terminate()
+                    global last_post_id
+                    if last_post_id is not None:
+                        #print("update bazy z home")
+                        post = Post.query.get_or_404(last_post_id)
+                        post.last_part = lastFragmentVar.value
+                        db.session.commit()
     page = request.args.get('page', default=1, type=int)
     # user = User.query.filter_by(id=current_user.id).first()
     # has_posts = user.posts
@@ -65,6 +61,11 @@ def about():
             if isinstance(t, multiprocessing.Process):
                 if t.is_alive():
                     t.terminate()
+                    global last_post_id
+                    if last_post_id is not None:
+                        post = Post.query.get_or_404(last_post_id)
+                        post.last_part = lastFragmentVar.value
+                        db.session.commit()
     return render_template('about.html', title='About')
 
 
@@ -107,6 +108,11 @@ def logout():
             if isinstance(t, multiprocessing.Process):
                 if t.is_alive():
                     t.terminate()
+                    global last_post_id
+                    if last_post_id is not None:
+                        post = Post.query.get_or_404(last_post_id)
+                        post.last_part = lastFragmentVar.value
+                        db.session.commit()
     logout_user()
     return redirect(url_for('home'))
 
@@ -131,6 +137,11 @@ def account():
             if isinstance(t, multiprocessing.Process):
                 if t.is_alive():
                     t.terminate()
+                    global last_post_id
+                    if last_post_id is not None:
+                        post = Post.query.get_or_404(last_post_id)
+                        post.last_part = lastFragmentVar.value
+                        db.session.commit()
     form = UpdateAccountForm()
     if form.validate_on_submit():
         if form.picture.data:
@@ -155,6 +166,11 @@ def new_post():
             if isinstance(t, multiprocessing.Process):
                 if t.is_alive():
                     t.terminate()
+                    global last_post_id
+                    if last_post_id is not None:
+                        post = Post.query.get_or_404(last_post_id)
+                        post.last_part = lastFragmentVar.value
+                        db.session.commit()
     form = PostForm()
     if form.validate_on_submit():
         uploaded_file = form.file.data
@@ -178,103 +194,41 @@ def new_post():
 
 @app.route("/post/<int:post_id>")
 def post(post_id):
+    post = Post.query.get_or_404(post_id)
+    global last_post_id
+    last_post_id = post_id
     if len(reading_threads) > 0:
         for t in reading_threads:
             if isinstance(t, multiprocessing.Process):
                 if t.is_alive():
                     t.terminate()
-    post = Post.query.get_or_404(post_id)
+                    post.last_part = lastFragmentVar.value
+                    db.session.commit()
     return render_template('post.html', title=post.title, post=post)
 
 
 @app.route("/post/<int:post_id>reading")
 @login_required
 def start_reading(post_id):
-    thr = multiprocessing.Process(target=read, args=(post_id,), kwargs={})
+    thr = multiprocessing.Process(target=TextReading.read, args=(post_id, lastFragmentVar), kwargs={})
     reading_threads.append(thr)
     if not any(t.is_alive() for t in reading_threads):
         thr.start()
     return '', 204
 
 
-def read(post_id):
-    post = Post.query.get_or_404(post_id)
-
-    mp3_fp = BytesIO()
-    mp3_fp_array = [mp3_fp]
-
-    detector = nltk.data.load('tokenizers/punkt/english.pickle')
-    detector._params.abbrev_types.add('e.g')
-    sentences = detector.tokenize(post.content)
-    fragments = []
-
-    #dividing text for smaller fragments
-    while(len(sentences)>0):
-        if(len(sentences)>4):
-            fragments.append(sentences[0] + sentences[1] + sentences[2] + sentences[3] + sentences[4])
-            for i in range(5):
-                sentences.pop(0)
-        else:
-            fragments.append(" ".join(sentences))
-            for i in range(len(sentences)):
-                sentences.pop(0)
-
-    fp_array = manager.list([[] for i in range(len(fragments)-1)])
-    #print(fp_array)
-    thr_2 = multiprocessing.Process(target=process_fragment, args=(fp_array, fragments), kwargs={})
-
-    #processing and reading first fragment to start, the rest will be processed by second process
-    tts = gTTS(fragments.pop(0), lang='en', tld="com")
-    #tts.save('audio.mp3')
-    #print("po zapisie mp3")
-    tts.write_to_fp(mp3_fp_array[0])  #this operation takes the most time
-    #print("po write to fp")
-    mp3_fp_array[0].seek(0)
-    #first fragment ready so the second process can start working
-    thr_2.start()
-    #print("lalal")
-    post_audio = AudioSegment.from_file(mp3_fp_array[0], format="mp3")
-    #print("przed play")
-    play(post_audio)
-    #print("po play")
-
-    #print("ile? " + str(len(fp_array)))
-    counter = 0
-    while(counter < len(fragments)):
-        #print(fp_array)
-        post_audio = AudioSegment.from_file(fp_array[counter][0], format="mp3")
-        #print("play kolejnych fragmentow")
-        play(post_audio)
-        counter = counter + 1
-
-def process_fragment(fp_array, fragments):
-    counter = 0
-    while (counter < len(fragments)+1):
-        #print("przetwarzam" + str(counter+2) + "fragment")
-        #print("dl fragmentow w 2 watku: " + str(len(fragments)))
-        mp3_fp = BytesIO()
-        tts = gTTS(fragments.pop(0), lang='en', tld="com")
-        tts.write_to_fp(mp3_fp)
-        #print(mp3_fp)
-        mp3_fp.seek(0)
-        sub_l = manager.list(fp_array[counter])
-        sub_l.append(mp3_fp)
-        fp_array[counter] = sub_l
-        #print("Lista gotowych bytesIO: ")
-        #print(fp_array)
-        counter = counter + 1
-        #print("wychodze z przetwarzania fragmentu")
-
-
 @app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
 @login_required
 def update_post(post_id):
+    post = Post.query.get_or_404(post_id)
     if len(reading_threads) > 0:
         for t in reading_threads:
             if isinstance(t, multiprocessing.Process):
                 if t.is_alive():
                     t.terminate()
-    post = Post.query.get_or_404(post_id)
+                    post.last_part = lastFragmentVar.value
+                    db.session.commit()
+
     if post.author != current_user:
         abort(403)  # http forbidden route
     form = PostForm()
@@ -302,12 +256,14 @@ def update_post(post_id):
 @app.route("/post/<int:post_id>/delete", methods=['POST'])
 @login_required
 def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
     if len(reading_threads) > 0:
         for t in reading_threads:
             if isinstance(t, multiprocessing.Process):
                 if t.is_alive():
                     t.terminate()
-    post = Post.query.get_or_404(post_id)
+                    post.last_part = lastFragmentVar.value
+                    db.session.commit()
     if post.author != current_user:
         abort(403)  # http forbidden route
     db.session.delete(post)
@@ -316,12 +272,21 @@ def delete_post(post_id):
     return redirect(url_for('home'))
 
 
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>stopped")
 @login_required
 def stop_reading(post_id):
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403)  # http forbidden route
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
+                    #print("uaktualniam baze:" + str(str(lastFragmentVar.value)))
+                    post.last_part = lastFragmentVar.value
+                    db.session.commit()
+    return '', 204
 
 
 @app.route("/post/<int:post_id>")
@@ -340,12 +305,33 @@ def read_previous(post_id):
         abort(403)  # http forbidden route
 
 
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>reset")
 @login_required
 def reset_reading(post_id):
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403)  # http forbidden route
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
+                    # print("uaktualniam baze:" + str(str(lastFragmentVar.value)))
+                    if post.last_part != 0:
+                        lastFragmentVar.value = 0
+                        post.last_part = 0
+                        db.session.commit()
+                else:
+                    if post.last_part != 0:
+                        lastFragmentVar.value = 0
+                        post.last_part = 0
+                        db.session.commit()
+    else:
+        if post.last_part != 0:
+            lastFragmentVar.value = 0
+            post.last_part = 0
+            db.session.commit()
+    return '', 204
 
 
 @app.route("/user/<string:username>")
@@ -356,6 +342,11 @@ def user_posts(username):
             if isinstance(t, multiprocessing.Process):
                 if t.is_alive():
                     t.terminate()
+                    global last_post_id
+                    if last_post_id is not None:
+                        post = Post.query.get_or_404(last_post_id)
+                        post.last_part = lastFragmentVar.value
+                        db.session.commit()
     page = request.args.get('page', default=1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
     # means without break
