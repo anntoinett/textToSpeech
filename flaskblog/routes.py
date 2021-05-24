@@ -1,6 +1,8 @@
 import multiprocessing
 import os
 import secrets
+
+import nltk
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 
@@ -204,7 +206,11 @@ def post(post_id):
                     t.terminate()
                     post.last_part = lastFragmentVar.value
                     db.session.commit()
-    return render_template('post.html', title=post.title, post=post)
+    detector = nltk.data.load('tokenizers/punkt/english.pickle')
+    detector._params.abbrev_types.add('e.g')
+    tokens = detector.tokenize(post.content)
+    last_sentence = tokens[post.last_part * 5] + ".."
+    return render_template('post.html', title=post.title, post=post, last_sentence=last_sentence)
 
 
 @app.route("/post/<int:post_id>reading")

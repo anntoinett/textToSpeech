@@ -78,7 +78,7 @@ class TextReading:
     @staticmethod
     def process_fragment(fp_array, fragments):
         counter = 0
-        while (counter < len(fragments) + 1):
+        while (counter < len(fragments) + 1 and len(fragments)>0):
             # print("przetwarzam" + str(counter+2) + "fragment")
             # print("dl fragmentow w 2 watku: " + str(len(fragments)))
             mp3_fp = BytesIO()
