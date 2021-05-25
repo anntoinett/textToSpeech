@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 <!--code block in html-->
 {% block content%}
-<article class="media content-section">
+<article class="media content-section text">
     <a href="{{ url_for('user_posts', username=post.author.username) }}">
     <img class="rounded-circle article-img"
          src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
@@ -21,13 +21,22 @@
         <h2 class="article-title" > {{ post.title }} </h2>
         <p class="article-content">{{ post.content }}</p>
         <div class="text-actions">
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('start_reading', post_id=post.id) }}">Read</a>
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('stop_reading', post_id=post.id) }}">Stop</a>
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_next', post_id=post.id) }}">Next</a>
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_previous', post_id=post.id) }}">Previous</a>
-            <a class="btn btn-danger btn-sm m-1" href="{{ url_for('reset_reading', post_id=post.id) }}">Reset</a>
+
         </div>
     </div>
+    <div class="col-md-4">
+          <div class="content-section">
+              <p class='text-muted'>
+                  <ul class="list-group">
+                    <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('start_reading', post_id=post.id) }}">Read</a></li>
+                    <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('stop_reading', post_id=post.id) }}">Stop</a></li>
+                    <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_next', post_id=post.id) }}">Next</a></li>
+                    <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_previous', post_id=post.id) }}">Previous</a></li>
+                    <li class="list-group-item nav-link"><a class="btn btn-danger btn-sm m-1" href="{{ url_for('reset_reading', post_id=post.id) }}">Reset</a></li>
+                  </ul>
+              </p>
+          </div>
+        </div>
 </article>
 <!-- Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">

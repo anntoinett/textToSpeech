@@ -118,3 +118,17 @@ a{
 .content-section{
     width: 1000px;
 }
+
+.content-section.text{
+    width: 900px;
+}
+
+.col-md-4 .content-section, .col-md-4{
+    width: 200px;
+    position: fixed;
+    right:50px;
+}
+
+.list-group-item{
+    text-align: center;
+}
