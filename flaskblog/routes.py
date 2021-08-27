@@ -5,6 +5,7 @@ import secrets
 import nltk
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
+from gtts import gTTS
 
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm  # forms created by us
@@ -17,6 +18,7 @@ from flaskblog.textReading import TextReading
 reading_threads = []
 lastFragmentVar = multiprocessing.Value('i', 0) #shared value to update database's post's last_part once after processes stop working
 last_post_id = None
+parent_dir = "flaskblog/mp3_user_fragments/"
 
 @app.after_request
 def after_request(response):
@@ -184,6 +186,29 @@ def new_post():
             # uploaded_file.save(os.path.join(uploaded_file.filename))
             # content = read_text(uploaded_file)
             content, num_of_parts = TextProcessing.convert_to_txt(new_filename)
+
+            detector = nltk.data.load('tokenizers/punkt/english.pickle')
+            detector._params.abbrev_types.add('e.g')
+            sentences = detector.tokenize(content)
+            fragments = []
+
+            # dividing text for smaller fragments
+            while (len(sentences) > 0):
+                if (len(sentences) > 4):
+                    fragments.append(sentences[0] + sentences[1] + sentences[2] + sentences[3] + sentences[4])
+                    for i in range(5):
+                        sentences.pop(0)
+                else:
+                    fragments.append(" ".join(sentences))
+                    for i in range(len(sentences)):
+                        sentences.pop(0)
+
+            post_path = os.path.join(parent_dir, f"{current_user.username}/{form.title.data}")
+            os.mkdir(post_path)
+            for i in range(len(fragments)):
+                tts = gTTS(fragments.pop(0), lang='en', tld="com")
+                tts.save(f'{post_path}/{i+1}.mp3')
+
             post = Post(title=form.title.data, content=content, author=current_user,
                         number_of_parts=num_of_parts)  # author works because of relationship in user model?
             db.session.add(post)
