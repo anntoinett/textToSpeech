@@ -18,7 +18,7 @@ from flaskblog.textReading import TextReading
 reading_threads = []
 lastFragmentVar = multiprocessing.Value('i', 0) #shared value to update database's post's last_part once after processes stop working
 last_post_id = None
-parent_dir = "flaskblog/mp3_user_fragments/"
+parent_dir = "flaskblog/mp3_user_fragments/" #ręcznie stworzony na pliczki
 
 @app.after_request
 def after_request(response):
@@ -241,7 +241,8 @@ def post(post_id):
 @app.route("/post/<int:post_id>reading")
 @login_required
 def start_reading(post_id):
-    thr = multiprocessing.Process(target=TextReading.read, args=(post_id, lastFragmentVar), kwargs={})
+    sound_path = os.path.join(parent_dir, f"{current_user.username}")
+    thr = multiprocessing.Process(target=TextReading.read, args=(post_id, lastFragmentVar, sound_path), kwargs={})
     reading_threads.append(thr)
     if not any(t.is_alive() for t in reading_threads):
         thr.start()
