@@ -204,7 +204,7 @@ def new_post():
                         sentences.pop(0)
 
             post_path = os.path.join(parent_dir, f"{current_user.username}/{form.title.data}")
-            os.mkdir(post_path)
+            os.makedirs(post_path)
             for i in range(len(fragments)):
                 tts = gTTS(fragments.pop(0), lang='en', tld="com")
                 tts.save(f'{post_path}/{i+1}.mp3')
