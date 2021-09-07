@@ -18,7 +18,7 @@
                 </div>
             {% endif %}
         </div>
-        <h2 class="article-title" > {{ post.title }} </h2>
+        <h2 class="article-title" > {{ post.title}} </h2>
         <p class="article-content">{{ post.content }}</p>
         <div class="text-actions">
 
@@ -29,7 +29,7 @@
               <p class='text-muted'>
                   <ul class="list-group">
 <!--                    <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('start_reading', post_id=post.id) }}">Read</a></li>-->
-                    <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" onclick="playFragment('antosia', '{{post.title}}', 1)">Read</a></li>
+                    <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" onclick="playFragment('{{post.author.username}}', '{{post.title}}', {{post.last_part+1}})">Read</a></li>
                     <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('stop_reading', post_id=post.id) }}">Stop</a></li>
                     <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_next', post_id=post.id) }}">Next</a></li>
                     <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_previous', post_id=post.id) }}">Previous</a></li>

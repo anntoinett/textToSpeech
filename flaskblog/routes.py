@@ -202,7 +202,8 @@ def new_post():
                     fragments.append(" ".join(sentences))
                     for i in range(len(sentences)):
                         sentences.pop(0)
-
+            if not os.path.exists(f"{parent_dir}{current_user.username}"):
+                os.makedirs(f"{parent_dir}{current_user.username}")
             post_path = os.path.join(parent_dir, f"{current_user.username}/{form.title.data}")
             os.mkdir(post_path)
             for i in range(len(fragments)):
