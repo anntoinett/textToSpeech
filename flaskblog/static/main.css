@@ -9,6 +9,10 @@ h1, h2, h3, h4, h5, h6 {
   color: #444444;
 }
 
+.highlight {
+  background-color: rgba(191, 217, 73, 0.332);
+}
+
 .bg-steel {
   background-color:  #bfd949;
 }

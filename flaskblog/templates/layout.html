@@ -85,11 +85,40 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
     <script type = "text/javascript">
              function playFragment(user, title, fragment){
-<!--                    alert(user + title + fragment.toString());-->
+                //TODO: tutaj trzeba wyslac requesta o fragment tekstu dla danego tytulu i usera,
+                //odebrac response z tekstem, aktualnym numerem fragmentu i podswietlic tekst, odtworzyc odtworzyc odpowiedni fragment
+                //wyslac request ponownie poskonczeniu (po audio.play)
+                //i jakos zakonczyc i stopowac -do przemyslenia
+
+                $.ajax({
+                    type : "POST",
+                    url : '/getReadingData',
+                    dataType: "json",
+                    data: JSON.stringify("{'user': user, 'title': title}"),
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (data) {
+                        console.log(data);
+                        }
+                });
+
+                var txt = document.getElementsByClassName('article-content')[0];
+                console.log(txt);
+                var innerHTML=txt.innerHTML;
+                var text = "Dolphins are some of the most playful and intelligent animals on our planet. Even though dolphins spend their lives in the water, they are not fish, but are mammals. Dolphins can't breathe water like fish, but need to come to the surface to breath air. There are many kinds of dolphins. Perhaps the most famous are the Bottlenose Dolphin and the Killer Whale (that's right the Orca, or Killer Whale, is a member of the dolphin family).";
+                var index = innerHTML.indexOf(text);
+                if (index >= 0) {
+                   innerHTML = innerHTML.substring(0,index) + "<span class='highlight'>" + innerHTML.substring(index,index+text.length) + "</span>" + innerHTML.substring(index + text.length);
+                   txt.innerHTML = innerHTML;
+                }
                 const audio = new Audio("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment.toString() +".mp3");
                 audio.play();
+
              }
     </script>
 

@@ -4,7 +4,7 @@ import secrets
 
 import nltk
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort
+from flask import render_template, url_for, flash, redirect, request, abort, jsonify
 from gtts import gTTS
 
 from flaskblog import app, db, bcrypt
@@ -387,3 +387,16 @@ def user_posts(username):
         .order_by(Post.date_posted.desc()) \
         .paginate(page=page, per_page=5)
     return render_template('user_posts.html', posts=posts, user=user)
+
+@app.route('/getReadingData', methods=['POST'])
+#tu na podstawie tytulu i usera wyciagac z bazy aktualny fragment i tekst,
+# odeslac do javascripta i zaktualizowac last_partna bazie - pomyslec jak z zakonczeniem odczytu razem z js
+def send_data():
+    if not request.json:
+        abort(400)
+    response = {
+        'id': "hejka",
+        'title': request.json
+    }
+    print(request.json)
+    return jsonify({'message': 'jest dobrze'}), 201
