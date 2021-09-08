@@ -389,14 +389,37 @@ def user_posts(username):
     return render_template('user_posts.html', posts=posts, user=user)
 
 @app.route('/getReadingData', methods=['POST'])
-#tu na podstawie tytulu i usera wyciagac z bazy aktualny fragment i tekst,
-# odeslac do javascripta i zaktualizowac last_partna bazie - pomyslec jak z zakonczeniem odczytu razem z js
 def send_data():
     if not request.json:
         abort(400)
+    user = User.query.filter_by(username=request.json['user']).first_or_404()
+    post = Post.query.filter_by(author=user,title=request.json['title']).first_or_404()
+
+    detector = nltk.data.load('tokenizers/punkt/english.pickle')
+    detector._params.abbrev_types.add('e.g')
+    sentences = detector.tokenize(post.content)
+    fragments = []
+
+    while (len(sentences) > 0):
+        if (len(sentences) > 4):
+            fragments.append(sentences[0] + sentences[1] + sentences[2] + sentences[3] + sentences[4])
+            for i in range(5):
+                sentences.pop(0)
+        else:
+            fragments.append(" ".join(sentences))
+            for i in range(len(sentences)):
+                sentences.pop(0)
+
+    text =fragments[post.last_part]
     response = {
-        'id': "hejka",
-        'title': request.json
+        'fragment': str(post.last_part+1),
+        'text': text
     }
+    if post.last_part == post.number_of_parts-1:
+        post.last_part = 0
+    else:
+        post.last_part = post.last_part + 1
+    db.session.commit()
     print(request.json)
-    return jsonify({'message': 'jest dobrze'}), 201
+    print("Updated last_part number: " + str(post.last_part))
+    return jsonify(response), 201

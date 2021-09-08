@@ -90,35 +90,37 @@
       integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
       crossorigin="anonymous"></script>
     <script type = "text/javascript">
-             function playFragment(user, title, fragment){
-                //TODO: tutaj trzeba wyslac requesta o fragment tekstu dla danego tytulu i usera,
-                //odebrac response z tekstem, aktualnym numerem fragmentu i podswietlic tekst, odtworzyc odtworzyc odpowiedni fragment
-                //wyslac request ponownie poskonczeniu (po audio.play)
-                //i jakos zakonczyc i stopowac -do przemyslenia
-
+             function playFragment(user, title){
+                //TODO: wyslac request ponownie poskonczeniu (po audio.play) czy czytac po jednym ??
+                //i jakos zakonczyc i stopowac,
+                //blokowac przycisk read w czasie odczytu zeby komputer nie umrzał od ilosci odczytow ?? -do przemyslenia
+                var obj = {};
+                obj["user"] = user;
+                obj["title"] = title;
+                var textToHighlight = "";
+                var fragment = 0;
                 $.ajax({
                     type : "POST",
                     url : '/getReadingData',
                     dataType: "json",
-                    data: JSON.stringify("{'user': user, 'title': title}"),
+                    data: JSON.stringify(obj),
                     contentType: 'application/json;charset=UTF-8',
                     success: function (data) {
                         console.log(data);
+                        textToHighlight = data['text'];
+                        fragment = data['fragment'];
+                        var txt = document.getElementsByClassName('article-content')[0];
+                        //console.log(txt);
+                        var innerHTML=txt.innerHTML;
+                        var index = innerHTML.indexOf(textToHighlight);
+                        if (index >= 0) {
+                           innerHTML = innerHTML.substring(0,index) + "<span class='highlight'>" + innerHTML.substring(index,index+textToHighlight.length) + "</span>" + innerHTML.substring(index + textToHighlight.length);
+                           txt.innerHTML = innerHTML;
+                        }
+                        const audio = new Audio("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment +".mp3");
+                        audio.play();
                         }
                 });
-
-                var txt = document.getElementsByClassName('article-content')[0];
-                console.log(txt);
-                var innerHTML=txt.innerHTML;
-                var text = "Dolphins are some of the most playful and intelligent animals on our planet. Even though dolphins spend their lives in the water, they are not fish, but are mammals. Dolphins can't breathe water like fish, but need to come to the surface to breath air. There are many kinds of dolphins. Perhaps the most famous are the Bottlenose Dolphin and the Killer Whale (that's right the Orca, or Killer Whale, is a member of the dolphin family).";
-                var index = innerHTML.indexOf(text);
-                if (index >= 0) {
-                   innerHTML = innerHTML.substring(0,index) + "<span class='highlight'>" + innerHTML.substring(index,index+text.length) + "</span>" + innerHTML.substring(index + text.length);
-                   txt.innerHTML = innerHTML;
-                }
-                const audio = new Audio("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment.toString() +".mp3");
-                audio.play();
-
              }
     </script>
 
