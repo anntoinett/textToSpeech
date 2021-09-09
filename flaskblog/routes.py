@@ -322,20 +322,60 @@ def stop_reading(post_id):
     return '', 204
 
 
-@app.route("/post/<int:post_id>")
+@app.route("/read_next", methods=["POST"])
 @login_required
-def read_next(post_id):
+def read_next():
+    # post_id = 0
+    # if request.method == "POST":
+    #     post_id = request.json['id']
+    if not request.json:
+        abort(404)
+    post_id = request.json['id']
+    print(post_id)
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403)  # http forbidden route
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
+                    #print("uaktualniam baze:" + str(str(lastFragmentVar.value)))
+                    post.last_part = lastFragmentVar.value
+                    db.session.commit()
+    if post.last_part == post.number_of_parts - 1:
+        post.last_part = 0
+    else:
+        post.last_part = post.last_part + 1
+    print(f'read next: {post.last_part}')
+    # message = {'user': post.author.username, 'title': post.title}
+    db.session.commit()
+    lastFragmentVar.value += 1
+
+    # return jsonify(message)
+    return '', 204
 
 
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>previous")
 @login_required
 def read_previous(post_id):
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403)  # http forbidden route
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
+                    #print("uaktualniam baze:" + str(str(lastFragmentVar.value)))
+                    post.last_part = lastFragmentVar.value
+                    db.session.commit()
+    if post.last_part != 0:
+        post.last_part = post.last_part - 1
+        lastFragmentVar.value -= 1
+    db.session.commit()
+    print(lastFragmentVar.value)
+    return '', 204
 
 
 @app.route("/post/<int:post_id>reset")
@@ -410,16 +450,16 @@ def send_data():
             for i in range(len(sentences)):
                 sentences.pop(0)
 
-    text =fragments[post.last_part]
+    text = fragments[post.last_part]
     response = {
         'fragment': str(post.last_part+1),
         'text': text
     }
-    if post.last_part == post.number_of_parts-1:
-        post.last_part = 0
-    else:
-        post.last_part = post.last_part + 1
-    db.session.commit()
+    # if post.last_part == post.number_of_parts-1:
+    #     post.last_part = 0
+    # else:
+    #     post.last_part = post.last_part + 1
+    # db.session.commit()
     print(request.json)
-    print("Updated last_part number: " + str(post.last_part))
+    # print("Updated last_part number: " + str(post.last_part))
     return jsonify(response), 201

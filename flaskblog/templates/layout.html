@@ -91,7 +91,7 @@
       crossorigin="anonymous"></script>
     <script type = "text/javascript">
              function playFragment(user, title){
-                //TODO: wyslac request ponownie poskonczeniu (po audio.play) czy czytac po jednym ??
+                //TODO: wyslac request ponownie poskonczeniu (po audio.play) czy czytac po jednym ?? -> czytać po jednym
                 //i jakos zakonczyc i stopowac,
                 //blokowac przycisk read w czasie odczytu zeby komputer nie umrzał od ilosci odczytow ?? -do przemyslenia
                 var obj = {};
@@ -122,6 +122,38 @@
                         }
                 });
              }
+
+             function readNext(postId, user, title) {
+                 $.ajax({
+                     type : "POST",
+                     url : '/read_next',
+                     dataType: "json",
+                     data: JSON.stringify({'id' : postId}),
+                     contentType: 'application/json;charset=UTF-8',
+                     success: function (){
+                         playFragment(user, title);
+                     }
+                 })
+             }
+
+             // function readNext(user, title, fragment) {
+             //     playFragment(user, title, fragment+1)
+             // }
+
+             // function readNext(postId, user, title) {
+             //     fetch('/read_next', {
+             //        method: 'POST',
+             //        headers: {
+             //          'Content-Type' : 'application/json',
+             //        body: JSON.stringify({id: postId})
+             //      }
+             //    }).then( function(text){
+             //                playFragment(user, title);
+             //            }
+             //        )
+             // }
+
+
     </script>
 
 </body>
