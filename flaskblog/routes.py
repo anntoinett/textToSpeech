@@ -443,20 +443,22 @@ def send_data():
 
     detector = nltk.data.load('tokenizers/punkt/english.pickle')
     detector._params.abbrev_types.add('e.g')
+    print("Post content: ", post.content)
     sentences = detector.tokenize(post.content)
     fragments = []
 
     while (len(sentences) > 0):
         if (len(sentences) > 4):
-            fragments.append(sentences[0] + sentences[1] + sentences[2] + sentences[3] + sentences[4])
+            fragments.append(f"{sentences[0]} {sentences[1]} {sentences[2]} {sentences[3]} {sentences[4]}")
             for i in range(5):
                 sentences.pop(0)
         else:
             fragments.append(" ".join(sentences))
             for i in range(len(sentences)):
                 sentences.pop(0)
-
+    print(fragments)
     text = fragments[post.last_part]
+    print("fragment text: ", text)
     response = {
         'fragment': str(post.last_part+1),
         'text': text

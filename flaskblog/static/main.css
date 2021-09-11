@@ -13,6 +13,10 @@ h1, h2, h3, h4, h5, h6 {
   background-color: rgba(191, 217, 73, 0.332);
 }
 
+.unhighlight {
+  background-color: #ffffff;
+}
+
 .bg-steel {
   background-color:  #bfd949;
 }

@@ -117,11 +117,32 @@
                            innerHTML = innerHTML.substring(0,index) + "<span class='highlight'>" + innerHTML.substring(index,index+textToHighlight.length) + "</span>" + innerHTML.substring(index + textToHighlight.length);
                            txt.innerHTML = innerHTML;
                         }
-                        const audio = new Audio("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment +".mp3");
-                        audio.play();
+                        playAndHighlight("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment +".mp3", textToHighlight);
+                        //const audio = new Audio("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment +".mp3");
+                        //audio.play();
                         }
                 });
              }
+
+             function playAudio(audio_obj){
+                  return new Promise(res=>{
+                    audio_obj.play()
+                    audio_obj.onended = res
+                  })
+                }
+
+                // how to call
+                async function playAndHighlight(path, fragment){
+                  const audio = new Audio(path)
+                  await playAudio(audio)
+                  var txt = document.getElementsByClassName('article-content')[0];
+                  var innerHTML=txt.innerHTML;
+                  var index = innerHTML.indexOf(fragment);
+                  if (index >= 0) {
+                     innerHTML = innerHTML.substring(0,index) + "<span class='unhighlight'>" + innerHTML.substring(index,index+fragment.length) + "</span>" + innerHTML.substring(index + fragment.length);
+                     txt.innerHTML = innerHTML;
+                  }
+                }
 
              function readNext(postId, user, title) {
                  $.ajax({
