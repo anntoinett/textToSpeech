@@ -356,9 +356,13 @@ def read_next():
     return '', 204
 
 
-@app.route("/post/<int:post_id>previous")
+@app.route("/read_previous", methods=['POST'])
 @login_required
-def read_previous(post_id):
+def read_previous():
+    if not request.json:
+        abort(404)
+    post_id = request.json['id']
+    print(post_id)
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403)  # http forbidden route
@@ -373,6 +377,8 @@ def read_previous(post_id):
     if post.last_part != 0:
         post.last_part = post.last_part - 1
         lastFragmentVar.value -= 1
+    else:
+        post.last_part = 0
     db.session.commit()
     print(lastFragmentVar.value)
     return '', 204

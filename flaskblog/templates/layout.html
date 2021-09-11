@@ -127,11 +127,24 @@
                  $.ajax({
                      type : "POST",
                      url : '/read_next',
-                     dataType: "json",
-                     data: JSON.stringify({'id' : postId}),
-                     contentType: 'application/json;charset=UTF-8',
-                     success: function (){
+                     dataType : "json",
+                     data : JSON.stringify({'id' : postId}),
+                     contentType : 'application/json;charset=UTF-8',
+                     success: function() {
                          playFragment(user, title);
+                     }
+                 })
+             }
+
+             function readPrevious(postId, user, title) {
+                 $.ajax({
+                     type : "POST",
+                     url : '/read_previous',
+                     dataType : "json",
+                     data : JSON.stringify({'id' : postId}),
+                     contentType : 'application/json;charset=UTF-8',
+                     success : function() {
+                         playFragment(user, title)
                      }
                  })
              }
