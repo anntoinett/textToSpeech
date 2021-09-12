@@ -90,7 +90,7 @@
       integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
       crossorigin="anonymous"></script>
     <script type = "text/javascript">
-             function playFragment(user, title){
+             function playFragment(user, title, button){
                 //TODO: wyslac request ponownie poskonczeniu (po audio.play) czy czytac po jednym ?? -> czytać po jednym
                 //i jakos zakonczyc i stopowac,
                 //blokowac przycisk read w czasie odczytu zeby komputer nie umrzał od ilosci odczytow ?? -do przemyslenia
@@ -110,6 +110,10 @@
                         textToHighlight = data['text'];
                         fragment = data['fragment'];
                         var txt = document.getElementsByClassName('article-content')[0];
+                        document.getElementById('ReadButton').disabled = true;
+                        document.getElementById('ReadAllButton').disabled = true;
+                  document.getElementById('ReadNextButton').disabled = true;
+                  document.getElementById('ReadPrevButton').disabled = true;
                         //console.log(txt);
                         var innerHTML=txt.innerHTML;
                         var index = innerHTML.indexOf(textToHighlight);
@@ -117,6 +121,7 @@
                            innerHTML = innerHTML.substring(0,index) + "<span class='highlight'>" + innerHTML.substring(index,index+textToHighlight.length) + "</span>" + innerHTML.substring(index + textToHighlight.length);
                            txt.innerHTML = innerHTML;
                         }
+
                         playAndHighlight("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment +".mp3", textToHighlight);
                         //const audio = new Audio("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment +".mp3");
                         //audio.play();
@@ -131,10 +136,21 @@
                   })
                 }
 
+             function stopAudio(audio_obj){
+                  return new Promise(res=>{
+                    audio_obj.pause()
+                    audio_obj.onended = res
+                  })
+                }
+
                 // how to call
                 async function playAndHighlight(path, fragment){
                   const audio = new Audio(path)
                   await playAudio(audio)
+                  document.getElementById('ReadButton').disabled = false;
+                  document.getElementById('ReadAllButton').disabled = false;
+                  document.getElementById('ReadNextButton').disabled = false;
+                  document.getElementById('ReadPrevButton').disabled = false;
                   var txt = document.getElementsByClassName('article-content')[0];
                   var innerHTML=txt.innerHTML;
                   var index = innerHTML.indexOf(fragment);
@@ -143,6 +159,24 @@
                      txt.innerHTML = innerHTML;
                   }
                 }
+
+                function stop(user, title){
+                    var obj = {};
+                    obj["user"] = user;
+                    obj["title"] = title;
+                    var fragment = 0;
+                    $.ajax({
+                    type : "POST",
+                    url : '/getReadingData',
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (data) {
+                        console.log(data);
+                        stopAudio(audio) // TODO: Skąd wziąć audio?
+                        }
+                    });
+             }
 
              function readNext(postId, user, title) {
                  $.ajax({
@@ -169,6 +203,20 @@
                      }
                  })
              }
+
+             function readStop(postId, user, title) {
+                 $.ajax({
+                     type : "POST",
+                     url : '/read_stopped',
+                     dataType : "json",
+                     data : JSON.stringify({'id' : postId}),
+                     contentType : 'application/json;charset=UTF-8',
+                     success : function() {
+                        stop(user,title)
+                     }
+                 })
+             }
+
 
              // function readNext(user, title, fragment) {
              //     playFragment(user, title, fragment+1)
