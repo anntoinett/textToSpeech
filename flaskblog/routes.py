@@ -249,6 +249,29 @@ def start_reading(post_id):
         thr.start()
     return '', 204
 
+@app.route("/read_all", methods=['POST'])
+@login_required
+def read_all():
+    if not request.json:
+        abort(404)
+    post_id = request.json['id']
+    print(post_id)
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)  # http forbidden route
+    if len(reading_threads) > 0:
+        for t in reading_threads:
+            if isinstance(t, multiprocessing.Process):
+                if t.is_alive():
+                    t.terminate()
+                    #print("uaktualniam baze:" + str(str(lastFragmentVar.value)))
+                    post.last_part = lastFragmentVar.value
+                    db.session.commit()
+    post.last_part = 0
+    lastFragmentVar.value = 0
+    db.session.commit()
+    return '', 204
+
 
 @app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
 @login_required

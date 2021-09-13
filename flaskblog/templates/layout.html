@@ -90,7 +90,7 @@
       integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
       crossorigin="anonymous"></script>
     <script type = "text/javascript">
-             function playFragment(user, title, button){
+             async function playFragment(user, title){
                 //TODO: wyslac request ponownie poskonczeniu (po audio.play) czy czytac po jednym ?? -> czytać po jednym
                 //i jakos zakonczyc i stopowac,
                 //blokowac przycisk read w czasie odczytu zeby komputer nie umrzał od ilosci odczytow ?? -do przemyslenia
@@ -178,7 +178,27 @@
                     });
              }
 
-             function readNext(postId, user, title) {
+             function playAllFragments(postId, user, title, number_of_parts) {
+                 $.ajax({
+                     type : "POST",
+                     url : '/read_all',
+                     dataType : "json",
+                     data : JSON.stringify({'id' : postId}),
+                     contentType: 'application/json;charset=UTF-8',
+                     success: async function (data) {
+                         for (let i = 1; i <= number_of_parts; i++) {
+                             // if (i === 1) {
+                             //     await playFragment(user, title)
+                             // } else {
+                             //     await readNext(postId, user, title)
+                             // }
+                             await readNext(postId, user, title)
+                         }
+                     }
+                 })
+             }
+
+             async function readNext(postId, user, title) {
                  $.ajax({
                      type : "POST",
                      url : '/read_next',

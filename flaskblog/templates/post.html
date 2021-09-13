@@ -30,7 +30,7 @@
                   <ul class="list-group">
 <!--                    <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('start_reading', post_id=post.id) }}">Read</a></li>-->
                     <li class="list-group-item nav-link"><button id="ReadButton" class="btn btn-secondary btn-sm mt-1 mb-1"  onclick="playFragment('{{post.author.username}}', '{{post.title}}')">Read</button></li>
-                    <li class="list-group-item nav-link"><button class="btn btn-secondary btn-sm mt-1 mb-1" id="ReadAllButton" onclick="playAllFragments('{{post.author.username}}', '{{post.title}}')">Read All</button></li>
+                    <li class="list-group-item nav-link"><button class="btn btn-secondary btn-sm mt-1 mb-1" id="ReadAllButton" onclick="playAllFragments('{{post.id}}', '{{post.author.username}}', '{{post.title}}', '{{post.number_of_parts}}')">Read All</button></li>
                     <li class="list-group-item nav-link"><button class="btn btn-secondary btn-sm mt-1 mb-1" onclick="readStop('{{post.id}}', '{{post.author.username}}', '{{post.title}}')">Stop</button></li>
 <!--                    <li class="list-group-item nav-link"><a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('read_next', post_id=post.id) }}">Next</a></li>-->
                     <li class="list-group-item nav-link"><button class="btn btn-secondary btn-sm mt-1 mb-1" id="ReadNextButton" onclick="readNext('{{post.id}}', '{{post.author.username}}', '{{post.title}}')">Next</button></li>
