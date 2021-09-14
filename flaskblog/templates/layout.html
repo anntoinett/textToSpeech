@@ -99,13 +99,14 @@
                 obj["title"] = title;
                 var textToHighlight = "";
                 var fragment = 0;
-                $.ajax({
+                return new Promise(resolve => {
+                    $.ajax({
                     type : "POST",
                     url : '/getReadingData',
                     dataType: "json",
                     data: JSON.stringify(obj),
                     contentType: 'application/json;charset=UTF-8',
-                    success: function (data) {
+                    success: async function (data) {
                         console.log(data);
                         textToHighlight = data['text'];
                         fragment = data['fragment'];
@@ -122,10 +123,12 @@
                            txt.innerHTML = innerHTML;
                         }
 
-                        playAndHighlight("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment +".mp3", textToHighlight);
+                        await playAndHighlight("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment +".mp3", textToHighlight);
                         //const audio = new Audio("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment +".mp3");
                         //audio.play();
+                        resolve("")
                         }
+                });
                 });
              }
 
@@ -158,6 +161,7 @@
                      innerHTML = innerHTML.substring(0,index) + "<span class='unhighlight'>" + innerHTML.substring(index,index+fragment.length) + "</span>" + innerHTML.substring(index + fragment.length);
                      txt.innerHTML = innerHTML;
                   }
+                  return new Promise(resolve => resolve(""));
                 }
 
                 function stop(user, title){
@@ -187,28 +191,30 @@
                      contentType: 'application/json;charset=UTF-8',
                      success: async function (data) {
                          for (let i = 1; i <= number_of_parts; i++) {
-                             // if (i === 1) {
-                             //     await playFragment(user, title)
-                             // } else {
-                             //     await readNext(postId, user, title)
-                             // }
-                             await readNext(postId, user, title)
+                             if (i === 1) {
+                                 await playFragment(user, title);
+                             } else {
+                                 await readNext(postId, user, title);
+                             }
                          }
                      }
                  })
              }
 
-             async function readNext(postId, user, title) {
-                 $.ajax({
+              async function readNext(postId, user, title) {
+                 return new Promise(resolve => {
+                     $.ajax({
                      type : "POST",
                      url : '/read_next',
                      dataType : "json",
                      data : JSON.stringify({'id' : postId}),
                      contentType : 'application/json;charset=UTF-8',
-                     success: function() {
-                         playFragment(user, title);
+                     success: async function() {
+                         await playFragment(user, title);
+                         resolve("");
                      }
-                 })
+                 });
+                 });
              }
 
              function readPrevious(postId, user, title) {
