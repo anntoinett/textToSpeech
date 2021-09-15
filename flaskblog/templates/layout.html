@@ -166,24 +166,6 @@
                   return new Promise(resolve => resolve(""));
                 }
 
-                function stop(user, title){
-                    var obj = {};
-                    obj["user"] = user;
-                    obj["title"] = title;
-                    var fragment = 0;
-                    $.ajax({
-                    type : "POST",
-                    url : '/getReadingData',
-                    dataType: "json",
-                    data: JSON.stringify(obj),
-                    contentType: 'application/json;charset=UTF-8',
-                    success: function (data) {
-                        console.log(data);
-                        currAudio.pause();
-                        }
-                    });
-             }
-
              function playAllFragments(postId, user, title, number_of_parts) {
                  $.ajax({
                      type : "POST",
@@ -232,22 +214,29 @@
                  })
              }
 
-             function readStop(postId, user, title) {
-                 $.ajax({
-                     type : "POST",
-                     url : '/read_stopped',
-                     dataType : "json",
-                     data : JSON.stringify({'id' : postId}),
-                     contentType : 'application/json;charset=UTF-8',
-                     success : function() {
-                        currAudio.pause();
-                        document.getElementById('ReadButton').disabled = false;
-                      document.getElementById('ReadAllButton').disabled = false;
-                      document.getElementById('ReadNextButton').disabled = false;
-                      document.getElementById('ReadPrevButton').disabled = false;
-                     }
-                 })
-             }
+            function readStop(postId, user, title) {
+             $.ajax({
+                 type : "POST",
+                 url : '/read_stopped',
+                 dataType : "json",
+                 data : JSON.stringify({'id' : postId}),
+                 contentType : 'application/json;charset=UTF-8',
+                 success : function() {
+                    currAudio.pause();
+                    var txt = document.getElementsByClassName('article-content')[0];
+                    var innerHTML=txt.innerHTML;
+                    var index = innerHTML.indexOf(fragment);
+                    if (index >= 0) {
+                        innerHTML = innerHTML.substring(0,index) + "<span class='unhighlight'>" + innerHTML.substring(index,index+fragment.length) + "</span>" + innerHTML.substring(index + fragment.length);
+                        txt.innerHTML = innerHTML;
+                    }
+                    document.getElementById('ReadButton').disabled = false;
+                    document.getElementById('ReadAllButton').disabled = false;
+                    document.getElementById('ReadNextButton').disabled = false;
+                    document.getElementById('ReadPrevButton').disabled = false;
+                 }
+             })
+            }
 
              function resetReading(postId, user, title) {
                  $.ajax({
@@ -258,6 +247,13 @@
                      contentType : 'application/json;charset=UTF-8',
                      success : function() {
                         currAudio.pause();
+                        var txt = document.getElementsByClassName('article-content')[0];
+                        var innerHTML=txt.innerHTML;
+                        var index = innerHTML.indexOf(fragment);
+                        if (index >= 0) {
+                            innerHTML = innerHTML.substring(0,index) + "<span class='unhighlight'>" + innerHTML.substring(index,index+fragment.length) + "</span>" + innerHTML.substring(index + fragment.length);
+                            txt.innerHTML = innerHTML;
+                        }
                         document.getElementById('ReadButton').disabled = false;
                         document.getElementById('ReadAllButton').disabled = false;
                         document.getElementById('ReadNextButton').disabled = false;
