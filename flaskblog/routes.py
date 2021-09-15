@@ -328,9 +328,13 @@ def delete_post(post_id):
     return redirect(url_for('home'))
 
 
-@app.route("/post/<int:post_id>stopped")
+@app.route("/read_stopped", methods=["POST"])
 @login_required
-def stop_reading(post_id):
+def stop_reading():
+    if not request.json:
+        abort(404)
+    post_id = request.json['id']
+    print(post_id)
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403)  # http forbidden route
@@ -407,9 +411,12 @@ def read_previous():
     return '', 204
 
 
-@app.route("/post/<int:post_id>reset")
+@app.route("/reset", methods=["POST"])
 @login_required
-def reset_reading(post_id):
+def reset_reading():
+    if not request.json:
+        abort(404)
+    post_id = request.json['id']
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403)  # http forbidden route

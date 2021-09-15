@@ -90,6 +90,7 @@
       integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
       crossorigin="anonymous"></script>
     <script type = "text/javascript">
+             var currAudio = 0;
              async function playFragment(user, title){
                 //TODO: wyslac request ponownie poskonczeniu (po audio.play) czy czytac po jednym ?? -> czytać po jednym
                 //i jakos zakonczyc i stopowac,
@@ -122,8 +123,8 @@
                            innerHTML = innerHTML.substring(0,index) + "<span class='highlight'>" + innerHTML.substring(index,index+textToHighlight.length) + "</span>" + innerHTML.substring(index + textToHighlight.length);
                            txt.innerHTML = innerHTML;
                         }
-
                         await playAndHighlight("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment +".mp3", textToHighlight);
+
                         //const audio = new Audio("http://127.0.0.1:8887/" + user +"/" + title + "/" + fragment +".mp3");
                         //audio.play();
                         resolve("")
@@ -148,7 +149,8 @@
 
                 // how to call
                 async function playAndHighlight(path, fragment){
-                  const audio = new Audio(path)
+                  const audio = new Audio(path);
+                  currAudio = audio;
                   await playAudio(audio)
                   document.getElementById('ReadButton').disabled = false;
                   document.getElementById('ReadAllButton').disabled = false;
@@ -177,7 +179,7 @@
                     contentType: 'application/json;charset=UTF-8',
                     success: function (data) {
                         console.log(data);
-                        stopAudio(audio) // TODO: Skąd wziąć audio?
+                        currAudio.pause();
                         }
                     });
              }
@@ -238,7 +240,28 @@
                      data : JSON.stringify({'id' : postId}),
                      contentType : 'application/json;charset=UTF-8',
                      success : function() {
-                        stop(user,title)
+                        currAudio.pause();
+                        document.getElementById('ReadButton').disabled = false;
+                      document.getElementById('ReadAllButton').disabled = false;
+                      document.getElementById('ReadNextButton').disabled = false;
+                      document.getElementById('ReadPrevButton').disabled = false;
+                     }
+                 })
+             }
+
+             function resetReading(postId, user, title) {
+                 $.ajax({
+                     type : "POST",
+                     url : '/reset',
+                     dataType : "json",
+                     data : JSON.stringify({'id' : postId}),
+                     contentType : 'application/json;charset=UTF-8',
+                     success : function() {
+                        currAudio.pause();
+                        document.getElementById('ReadButton').disabled = false;
+                        document.getElementById('ReadAllButton').disabled = false;
+                        document.getElementById('ReadNextButton').disabled = false;
+                        document.getElementById('ReadPrevButton').disabled = false;
                      }
                  })
              }
