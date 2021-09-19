@@ -10,7 +10,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .highlight {
-  background-color: rgba(191, 217, 73, 0.332);
+  background-color: rgb(191, 217, 73);
 }
 
 .unhighlight {
@@ -117,8 +117,6 @@ a{
     background-color: #a5c028;
     border-color: #a5c028;
 }
-
-
 
 .btn-secondary:hover{
     background-color: #768536;

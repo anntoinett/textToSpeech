@@ -1,4 +1,4 @@
-from flaskblog import app
+from textToSpeechApp import app
 
 #its like that if we run this script with python directly
 if __name__ == '__main__':

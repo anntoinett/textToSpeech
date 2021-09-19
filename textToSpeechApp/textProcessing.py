@@ -20,7 +20,7 @@ class TextProcessing:
         content = ""
         extension = os.path.splitext(file)
         if extension[1] == ".txt":
-            file_content = open(os.path.join("flaskblog/texts/", file), "r")
+            file_content = open(os.path.join("textToSpeechApp/texts/", file), "r")
             content = file_content.read()
         elif extension[1] == ".pdf":
             content = TextProcessing.pdf_to_txt(file)
@@ -34,24 +34,24 @@ class TextProcessing:
     @staticmethod
     def pdf_to_txt(filename):
         file_content = ""
-        with pdfplumber.open(os.path.join("flaskblog/texts/", filename)) as pdf_text:
+        with pdfplumber.open(os.path.join("textToSpeechApp/texts/", filename)) as pdf_text:
             # # txt_filename = os.path.basename(filename)
             # txt_filename = os.path.splitext(filename)[0] + ".txt"
             # # txt_filename = os.path.join(txt_filename, ".txt")
-            # txt_text = open(os.path.join("flaskblog/texts", txt_filename), "w")
+            # txt_text = open(os.path.join("textToSpeechApp/texts", txt_filename), "w")
             for i in range(0, len(pdf_text.pages)):
                 page = pdf_text.pages[i]
                 file_content += page.extract_text()
             #     txt_text.writelines(page.extract_text())
             # txt_text.close()
-            # txt_file = open(os.path.join("flaskblog/texts", txt_filename), "r")
+            # txt_file = open(os.path.join("textToSpeechApp/texts", txt_filename), "r")
             # file_content = txt_file.read()
             # txt_file.close()
         return file_content
 
     @staticmethod
     def docx_to_txt(filename):
-        docx_text = docx2python(os.path.join("flaskblog/texts/", filename))
+        docx_text = docx2python(os.path.join("textToSpeechApp/texts/", filename))
         return docx_text.text
 
     @staticmethod

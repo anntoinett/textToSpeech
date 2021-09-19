@@ -8,8 +8,8 @@ from pydub.playback import play
 import threading
 from multiprocessing import Manager, Process
 
-from flaskblog.models import Post
-from flaskblog import db
+from textToSpeechApp.models import Post
+from textToSpeechApp import db
 
 
 class TextReading:

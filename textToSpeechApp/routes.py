@@ -7,18 +7,18 @@ from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify
 from gtts import gTTS
 
-from flaskblog import app, db, bcrypt
-from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm  # forms created by us
-from flaskblog.models import User, Post
+from textToSpeechApp import app, db, bcrypt
+from textToSpeechApp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm  # forms created by us
+from textToSpeechApp.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required, AnonymousUserMixin
 
-from flaskblog.textProcessing import TextProcessing
-from flaskblog.textReading import TextReading
+from textToSpeechApp.textProcessing import TextProcessing
+from textToSpeechApp.textReading import TextReading
 
 reading_threads = []
 lastFragmentVar = multiprocessing.Value('i', 0) #shared value to update database's post's last_part once after processes stop working
 last_post_id = None
-parent_dir = "flaskblog/mp3_user_fragments/" #ręcznie stworzony na pliczki
+parent_dir = "textToSpeechApp/mp3_user_fragments/" #ręcznie stworzony na pliczki
 
 @app.after_request
 def after_request(response):
@@ -182,7 +182,7 @@ def new_post():
             # print(uploaded_file.read())
             extension = os.path.splitext(uploaded_file.filename)[1]
             new_filename = current_user.username + extension
-            uploaded_file.save(os.path.join("flaskblog/texts/", new_filename))
+            uploaded_file.save(os.path.join("textToSpeechApp/texts/", new_filename))
             # uploaded_file.save(os.path.join(uploaded_file.filename))
             # content = read_text(uploaded_file)
             content, num_of_parts = TextProcessing.convert_to_txt(new_filename)
@@ -293,7 +293,7 @@ def update_post(post_id):
         if uploaded_file.filename != '':
             extension = os.path.splitext(uploaded_file.filename)[1]
             new_filename = current_user.username + extension
-            uploaded_file.save(os.path.join("flaskblog/texts/", new_filename))
+            uploaded_file.save(os.path.join("textToSpeechApp/texts/", new_filename))
             # post.file = form.file.data
             post.title = form.title.data
             content, num_of_parts = TextProcessing.convert_to_txt(new_filename)
@@ -473,7 +473,7 @@ def send_data():
 
     detector = nltk.data.load('tokenizers/punkt/english.pickle')
     detector._params.abbrev_types.add('e.g')
-    print("Post content: ", post.content)
+    # print("Post content: ", post.content)
     sentences = detector.tokenize(post.content)
     fragments = []
 

@@ -20,4 +20,4 @@ login_manager.login_view = 'login' #function name of the route
 login_manager.login_message_category = 'info' #category in bootstrap css
 
 
-from flaskblog import routes  # here because our routes are importing app which is above and must be known when we get into routes
+from textToSpeechApp import routes  # here because our routes are importing app which is above and must be known when we get into routes
