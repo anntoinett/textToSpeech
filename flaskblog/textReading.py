@@ -13,7 +13,7 @@ from flaskblog import db
 
 
 class TextReading:
-    manager = Manager()  # manager holding sharable list with file-like BytesIO objects created by processing process and reading process takes then data from here
+    # manager = Manager()  # manager holding sharable list with file-like BytesIO objects created by processing process and reading process takes then data from here
 
     @staticmethod
     def read(post_id, lastFragmentVar, sound_path):
@@ -95,7 +95,7 @@ class TextReading:
             tts.write_to_fp(mp3_fp)
             # print(mp3_fp)
             mp3_fp.seek(0)
-            sub_l = TextReading.manager.list(fp_array[counter])
+            sub_l = list(fp_array[counter])
             sub_l.append(mp3_fp)
             fp_array[counter] = sub_l
             # print("Lista gotowych bytesIO: ")
